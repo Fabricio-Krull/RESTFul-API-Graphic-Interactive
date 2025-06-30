@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Formulattor API</title>
+</head>
+<body>
+    <main>
+        <h2>Envio e leitura de dados JSON</h2>
+        <div class="mainDiv">
+            <div class="content">
+                <div id="REQ">
+                    <p id="reqName">REQ</p>
+                    <p id="Error"></p>
+                </div>
+
+                <label>P1: <input type="text" id="p1"></input></label><br>
+                <label>P2: <input type="text" id="p2"></input></label><br>
+                <label>P3: <input type="text" id="p3"></input></label><br><br>
+                <div id="halfIds">
+                    <button id="post" onclick="sendJSON()">Enviar via POST</button>
+                    <div id="getIdiv">
+                        <button id="get" onclick="getJSON()">Ler via GET</button><input id="getId" type="number" placeholder="id"/>
+                    </div>
+                </div>
+                <div id="ids">
+                    <div class="ids">
+                        <button id="patch" onclick="updateJSON()">Atualizar via PATCH</button><input id="patchId" type="number" placeholder="id"/>
+                    </div>
+                    <div class="ids">
+                        <button id="delete" onclick="deleteJSON()">Apagar via DELETE</button><input id="delId" type="number" placeholder="id"/>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div id="RES">
+                    <p id="resName">RES</p>
+                    <p id="Error2"></p>
+                </div>
+                <pre id="response"></pre>
+            </div>
+        </div>
+
+        <script>
+            function clearError(){
+                document.getElementById("Error").textContent = "";
+                document.getElementById("Error").style.display = "none";
+                document.getElementById("Error2").textContent = "";
+                document.getElementById("Error2").style.display = "none";
+            }
+
+            async function sendJSON() {
+                const p1 = document.getElementById('p1').value;
+                const p2 = document.getElementById('p2').value;
+                const p3 = document.getElementById('p3').value;
+                
+                    const corpo = { p1, p2, p3 };
+
+                    const resposta = await fetch('/dados', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(corpo)
+                    });
+
+                    clearError();
+                    const data = await resposta.json();
+                    document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+                
+                if(!(p1.trim() !== '' && p2.trim() !== '' && p3.trim() !== '')){
+                    document.getElementById("Error").textContent = "Solicite valores em requisições de criação POST";
+                    document.getElementById("Error").style.display = "flex";
+                }
+            }
+        
+
+            async function getJSON() {
+                const getIdInput = document.getElementById("getId").value.trim();
+                let resposta;
+
+                if(getIdInput === ""){
+                    resposta = await fetch('/dados');
+                }
+                else{
+                    resposta = await fetch(`/dados/${document.getElementById("getId").value}`);
+                }
+                clearError();
+                const data = await resposta.json();
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+
+                if(document.getElementById('response').innerText == `{
+  "erro": "Dado não encontrado."
+}`){
+                    document.getElementById("Error2").textContent = "ID não referencia nenhum dado válido.";
+                    document.getElementById("Error2").style.display = "flex";
+                }
+
+            }
+
+            async function updateJSON(){
+                if(document.getElementById("patchId").value.trim() !== ""){
+                    const p1 = document.getElementById("p1").value.trim();
+                    const p2 = document.getElementById("p2").value.trim();
+                    const p3 = document.getElementById("p3").value.trim();
+                    const corpo = { p1, p2, p3 };
+                    let resposta = await fetch(`/dados/${document.getElementById("patchId").value}`, {
+                        method: "PATCH",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(corpo),
+                    });
+                    clearError();
+                    const data = await resposta.json();
+                    document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+                }
+                else{
+                    document.getElementById("Error").textContent = "Enviar ID em requisições PATCH";
+                    document.getElementById("Error").style.display = "flex";
+                }
+            }
+
+            async function deleteJSON(){
+                const p1 = document.getElementById("p1").value.trim();
+                const p2 = document.getElementById("p2").value.trim();
+                const p3 = document.getElementById("p3").value.trim();
+                if(document.getElementById("delId").value !== ""){
+                    const corpo = { p1, p2, p3 };
+                    const resposta = await fetch(`/dados/${document.getElementById("delId").value.trim()}`, {
+                        method: "DELETE",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(corpo),
+                    });
+                    clearError();
+                    const data = await resposta.json();
+                    document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+
+                    if(document.getElementById('response').innerText === `{
+  "erro": "Não foi possível encontrar dado."
+}`){
+                        document.getElementById("Error2").textContent = "ID não referencia nenhum dado válido.";
+                        document.getElementById("Error2").style.display = "flex";
+                    }
+
+                }
+                else{
+                    document.getElementById("Error").textContent = "Enviar ID em requisições DELETE";
+                    document.getElementById("Error").style.display = "flex";
+                }
+            }
+        </script>
+
+    </main>
+</body>
+</html>
