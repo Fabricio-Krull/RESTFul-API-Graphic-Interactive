@@ -36,8 +36,9 @@ app.patch("/dados/:id", async (req, res) => {
         const p2 = String(req.body.p2 ?? "").trim();
         const p3 = String(req.body.p3 ?? "").trim();
 
-        if (!p1 || !p2 || !p3) {
-            return res.status(400).json({ erro: "Todos os campos são obrigatórios e devem ser strings não vazias." });
+        // agui
+        if (!p1 && !p2 && !p3) {
+            return res.status(400).json({ erro: "Ao menos um campo deve estar preenchido para a atualização dos dados." });
         }
         const data = await Dado.findByPk(id);
 
@@ -45,13 +46,20 @@ app.patch("/dados/:id", async (req, res) => {
             return res.status(404).json({ erro: "Dado não encontrado." });
         }
 
-        data.p1 = p1.trim();
-        data.p2 = p2.trim();
-        data.p3 = p3.trim();
+        if(p1 !== data.p1 && p1 !== ""){
+            data.p1 = p1.trim();
+        }
+        if(p2 !== data.p2 && p2 !== ""){
+            data.p2 = p2.trim();
+        }
+        if(p3 !== data.p3 && p3 !== ""){
+            data.p3 = p3.trim();
+        }
+
         data.stringId = `${data.p1}_${data.p2}_${data.p3}`;
-
+    
         await data.save();
-
+    
         res.status(200).json({ mensagem: "Dado atualizado com sucesso!", data });
     }
 
