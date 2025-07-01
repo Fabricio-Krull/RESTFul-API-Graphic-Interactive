@@ -143,13 +143,26 @@ button{
     text-align: center;
 }
 
-#Error, #Error2{
-    display: none;
+#Error, #Error2 {
+    display: flex;
     justify-content: center;
     align-items: center;
     font-size: 5vh;
     height: 7vh;
-    width: fit-content;
     background-color: #E62020;
     color: whitesmoke;
+
+    max-width: 60vw;
+    padding: 0 1rem;
+    overflow: hidden;
+    white-space: nowrap;
+
+    transition: max-width 1.5s ease, padding 1.2s ease, opacity 0.5s ease;
+    opacity: 1;
+}
+
+#Error.no, #Error2.no {
+    max-width: 0;
+    padding: 0;
+    opacity: 0;
 }
