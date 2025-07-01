@@ -13,7 +13,7 @@
             <div class="content">
                 <div id="REQ">
                     <p id="reqName">REQ</p>
-                    <p id="Error"></p>
+                    <p id="Error" class="no"></p>
                 </div>
 
                 <label>P1: <input type="text" id="p1"></input></label><br>
@@ -38,18 +38,27 @@
             <div class="content">
                 <div id="RES">
                     <p id="resName">RES</p>
-                    <p id="Error2"></p>
+                    <p id="Error2" class="no"></p>
                 </div>
                 <pre id="response"></pre>
             </div>
         </div>
 
         <script>
-            function clearError(){
-                document.getElementById("Error").textContent = "";
-                document.getElementById("Error").style.display = "none";
-                document.getElementById("Error2").textContent = "";
-                document.getElementById("Error2").style.display = "none";
+            const error1 = document.getElementById("Error");
+            const error2 = document.getElementById("Error2");
+            function clearError() {
+                error1.classList.add("no");
+                error2.classList.add("no");
+            }
+
+            function showError(message, errorN){
+                errorN.classList.remove("no");
+                errorN.textContent = message;
+                setTimeout(() => {
+                    error1.classList.add("no");
+                    error2.classList.add("no");
+                }, 5000);
             }
 
             async function sendJSON() {
@@ -70,8 +79,7 @@
                     document.getElementById('response').innerText = JSON.stringify(data, null, 2);
                 
                 if(!(p1.trim() !== '' && p2.trim() !== '' && p3.trim() !== '')){
-                    document.getElementById("Error").textContent = "Solicite valores em requisições de criação POST";
-                    document.getElementById("Error").style.display = "flex";
+                    showError("Solicite valores em requisições de criação POST", error1);
                 }
             }
         
@@ -93,8 +101,7 @@
                 if(document.getElementById('response').innerText == `{
   "erro": "Dado não encontrado."
 }`){
-                    document.getElementById("Error2").textContent = "ID não referencia nenhum dado válido.";
-                    document.getElementById("Error2").style.display = "flex";
+                    showError("ID não referencia nenhum dado válido.", error2);
                 }
 
             }
@@ -113,10 +120,17 @@
                     clearError();
                     const data = await resposta.json();
                     document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+
+                    if(document.getElementById('response').innerText === `{
+  "erro": "Dado não encontrado."
+}`){
+                        showError("ID não referencia nenhum dado válido", error2);
+                    }
+
                 }
                 else{
-                    document.getElementById("Error").textContent = "Enviar ID em requisições PATCH";
-                    document.getElementById("Error").style.display = "flex";
+                    clearError();
+                    showError("Enviar ID em requisições PATCH", error1);
                 }
             }
 
@@ -138,14 +152,14 @@
                     if(document.getElementById('response').innerText === `{
   "erro": "Não foi possível encontrar dado."
 }`){
-                        document.getElementById("Error2").textContent = "ID não referencia nenhum dado válido.";
-                        document.getElementById("Error2").style.display = "flex";
+                        clearError();
+                        showError("ID não referencia nenhum dado válido", error2);
                     }
 
                 }
                 else{
-                    document.getElementById("Error").textContent = "Enviar ID em requisições DELETE";
-                    document.getElementById("Error").style.display = "flex";
+                    clearError();
+                    showError("Enviar ID em requisições DELETE", error1);
                 }
             }
         </script>
